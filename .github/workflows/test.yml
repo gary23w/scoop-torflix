@@ -1,0 +1,47 @@
+name: Install test
+
+# Installs Torflix from this bucket on x64 and arm64 Windows, starts it in its self-test
+# (stopped once the window is up), then removes it.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2025, windows-11-arm]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install Scoop
+        run: |
+          Invoke-RestMethod get.scoop.sh -OutFile install-scoop.ps1
+          .\install-scoop.ps1 -RunAsAdmin
+          Add-Content $env:GITHUB_PATH "$HOME\scoop\shims"
+      - name: Install Torflix from this bucket
+        run: |
+          scoop bucket add torflix $env:GITHUB_WORKSPACE
+          scoop install torflix/torflix
+          if ($LASTEXITCODE) { throw "scoop install exited with $LASTEXITCODE" }
+      - name: Start it
+        env:
+          TORRENTPLAYER_SMOKE_STEPS: ready
+        run: |
+          $env:TORRENTPLAYER_SMOKE_OUT = "$env:RUNNER_TEMP\shots"
+          $p = Start-Process "$HOME\scoop\apps\torflix\current\Torflix.exe" -ArgumentList '--smoke' -PassThru
+          $null = $p.Handle
+          if (-not $p.WaitForExit(180000)) { $p.Kill($true); throw 'Torflix did not finish its self-test in 3 minutes' }
+          if ($p.ExitCode) { throw "Torflix exited with $($p.ExitCode)" }
+      - name: Remove it
+        run: |
+          scoop uninstall torflix
+          if ($LASTEXITCODE) { throw "scoop uninstall exited with $LASTEXITCODE" }
