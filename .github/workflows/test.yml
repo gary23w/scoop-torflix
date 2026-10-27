@@ -35,11 +35,22 @@ jobs:
         env:
           TORRENTPLAYER_SMOKE_STEPS: ready
         run: |
+          $exe = "$HOME\scoop\apps\torflix\current\Torflix.exe"
           $env:TORRENTPLAYER_SMOKE_OUT = "$env:RUNNER_TEMP\shots"
-          $p = Start-Process "$HOME\scoop\apps\torflix\current\Torflix.exe" -ArgumentList '--smoke' -PassThru
+          $p = Start-Process $exe -ArgumentList '--smoke' -PassThru
           $null = $p.Handle
           if (-not $p.WaitForExit(180000)) { $p.Kill($true); throw 'Torflix did not finish its self-test in 3 minutes' }
-          if ($p.ExitCode) { throw "Torflix exited with $($p.ExitCode)" }
+          if ($p.ExitCode -and (Test-Path $env:TORRENTPLAYER_SMOKE_OUT)) { throw "Torflix exited with $($p.ExitCode)" }
+          if ($p.ExitCode) {
+            # A build older than TORRENTPLAYER_SMOKE_OUT (it makes that folder first) cannot run
+            # its self-test once installed; it has to stay up after a plain start instead.
+            'Self-test unavailable in this build; a plain start must stay up 25 s'
+            $p = Start-Process $exe -PassThru
+            $null = $p.Handle
+            if ($p.WaitForExit(25000)) { throw "Torflix exited with $($p.ExitCode) within 25 s" }
+            Get-Process Torflix -ErrorAction SilentlyContinue | Stop-Process -Force
+            'Still running after 25 s'
+          }
       - name: Remove it
         run: |
           scoop uninstall torflix
