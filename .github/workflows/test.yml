@@ -27,10 +27,9 @@ jobs:
           Invoke-RestMethod get.scoop.sh -OutFile install-scoop.ps1
           .\install-scoop.ps1 -RunAsAdmin
           Add-Content $env:GITHUB_PATH "$HOME\scoop\shims"
-      - name: Install Torflix from this bucket
+      - name: Install Torflix from this commit's manifest
         run: |
-          scoop bucket add torflix $env:GITHUB_WORKSPACE
-          scoop install torflix/torflix
+          scoop install "$env:GITHUB_WORKSPACE\bucket\torflix.json"
           if ($LASTEXITCODE) { throw "scoop install exited with $LASTEXITCODE" }
       - name: Start it
         env:
