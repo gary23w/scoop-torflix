@@ -1,5 +1,5 @@
 {
-    "version": "0.3.1",
+    "version": "0.31.0",
     "description": "Torrent video streaming and downloads with a built-in player.",
     "homepage": "https://github.com/gary23w/torflix",
     "license": "MIT OR Apache-2.0",
@@ -8,12 +8,12 @@
     },
     "architecture": {
         "64bit": {
-            "url": "https://github.com/gary23w/torflix/releases/download/v0.3.1/Torflix-0.3.1-win.zip",
-            "hash": "2543b01618c634e4e5c91cea2aec2c299b492bece544c8011185e407a60d0011"
+            "url": "https://github.com/gary23w/torflix/releases/download/v0.31.0/Torflix-0.31.0-win.zip",
+            "hash": "cf0c0cb94bf40e5e419900d6a0e3b96a4cdbc0b9cdd58b63d81dcdd3e6d21139"
         },
         "arm64": {
-            "url": "https://github.com/gary23w/torflix/releases/download/v0.3.1/Torflix-0.3.1-win-arm64.zip",
-            "hash": "1824be98dd7f3643ad7897dfbfc171e973504cc34a569ca8977f180565ff44be"
+            "url": "https://github.com/gary23w/torflix/releases/download/v0.31.0/Torflix-0.31.0-win-arm64.zip",
+            "hash": "51e9367fdc7cd11830f4757e94e524c65a3bc57333b33d7f0d5c3b21ed5426e5"
         }
     },
     "bin": "Torflix.exe",
